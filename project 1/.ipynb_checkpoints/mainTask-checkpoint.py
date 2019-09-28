@@ -22,7 +22,6 @@ def crossValidation(dataSet,trainModel):
 	setNum = ((0,numOfDataPerSub - 1),(numOfDataPerSub, 2 * numOfDataPerSub - 1) ,(2 * numOfDataPerSub , 3 * numOfDataPerSub - 1),(3 * numOfDataPerSub, 4 * numOfDataPerSub - 1),(4 * numOfDataPerSub, len(dataSet) - 1))
 	sumAccuracy = 0
 	for i in setNum:
-		print('fold ',setNum.index(i),' start training:')
 		trainModel.fit(np.concatenate((dataSet[0:i[0],0:-1],dataSet[i[1]+1:len(dataSet),0:-1]),axis = 0),np.concatenate((dataSet[0:i[0],-1],dataSet[i[1]+1:len(dataSet),-1]),axis = 0))
 		sumAccuracy = sumAccuracy + evaluate_acc(trainModel,dataSet[i[0]:i[1] + 1,:])
 	sumAccuracy = sumAccuracy / 5
@@ -36,7 +35,6 @@ wines = np.array(wines[1:],dtype=np.float)
 winesOnes = np.ones((len(wines),1))
 wines = np.concatenate((winesOnes,wines),axis = 1)
 for i in range(wines.shape[0]):
-	#wines[i:5] = wines[i:5]**(1/3)
 	if wines[i,-1] > 5:
 		wines[i,-1] = 1
 	else:
@@ -53,23 +51,27 @@ breastCancers = np.concatenate((breastOnes,breastCancers),axis = 1)
 for i in range(len(breastCancers)):
 	breastCancers[i,-1] = (breastCancers[i,-1]-2)/2
 
-LDA = LinearDiscriminantAnalysis(breastCancers[:,1:-1])
-print('Tumors:LDA')
-crossValidation(breastCancers[:,1:],LDA)
-
-#wines1 = np.delete(wines,4,axis=1)
-#wines1 = np.delete(wines1,4,axis=1)
-
-LDA2 = LinearDiscriminantAnalysis(wines[:,1:-1])
-print('Wines:LDA')
-crossValidation(wines[:,1:],LDA2)
 
 
-RegressionWines = LogisticRegression(0.02,wines)
-print('Wines:LogisticRegression')
-crossValidation(wines,RegressionWines)
+'''
+wines1 = np.delete(wines,0,axis=1)
+wines2 = np.concatenate((wines[:,0:3],wines[:,11:]),axis = 1)
+wines2 = np.delete(wines2,0,axis=1)
+#print(wines2)
+winesModel = LinearDiscriminantAnalysis(wines1[:,:-1])
+crossValidation(wines1,winesModel)
+'''
 
-RegressionBreasts = LogisticRegression(0.02,breastCancers)
-print('Tumors:LogisticRegression')
-crossValidation(breastCancers,RegressionBreasts)
+
+temp = np.delete(breastCancers,0,axis=1)
+breastModel = LinearDiscriminantAnalysis(temp[:,:-1])
+#breastModel = LinearDiscriminantAnalysis(breastCancers[:,:-1])
+
+crossValidation(temp,breastModel)
+
+#winesModel = LogisticRegression(0.00009)
+#crossValidation(wines,winesModel)
+
+
+
 

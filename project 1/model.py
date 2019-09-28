@@ -5,20 +5,33 @@ class LogisticRegression(object):
 		self.weights = np.ones(dataSet.shape[1]-1)
 		self.updateRate = updateRate
 	def fit(self,inputData,resultData):
+
 		def featureSum(weights,inputData,resultData):
+		
 			def alpha(result):
-				return 1/(1+mt.exp(-result))    # 1 / ( 1+mt.exp(-result) ) ?
+				if result >= 0:
+					return 1/(1+mt.exp(-result))
+				else:
+					return 1-1/(1+mt.exp(result))    
+		
 			zeros = np.zeros(inputData.shape[1])
+		
 			for i in range(len(resultData)):
-				zeros = zeros + inputData[i]*(resultData[i] - alpha(inputData[i].dot(weights.T)))
+				weights_t = weights.reshape(weights.shape[0],1)
+				zeros = zeros + inputData[i]*(resultData[i] - alpha(inputData[i].dot(weights_t)))
 			return zeros
+		i=0
+		updateRateN = self.updateRate
 		oldWeights =  self.weights
-		newWeights = oldWeights + self.updateRate * (featureSum(oldWeights,inputData,resultData)/len(inputData))
-		#while np.amax(np.abs(np.subtract(oldWeights,newWeights))) > 0.1 :
+		newWeights = oldWeights + self.updateRate * (featureSum(oldWeights,inputData,resultData))
+		#while np.amax(np.abs(np.subtract(oldWeights,newWeights))) > 0.0001 :
 		for i in range(5000):
+			updateRateN = self.updateRate/((i+1))
 			oldWeights = newWeights
-			newWeights = oldWeights + self.updateRate * (featureSum(oldWeights,inputData,resultData)/len(inputData))
+			newWeights = oldWeights + updateRateN * (featureSum(oldWeights,inputData,resultData))
+		
 		self.weights = newWeights
+	
 	def predict(self,inputData,trueLabel):		# split multi test sets into a few 1*m sets?
 		def alpha(result):
 			return 1/(1+mt.exp(-result))
